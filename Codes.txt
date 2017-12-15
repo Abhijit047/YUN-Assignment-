@@ -1,0 +1,67 @@
+import processing.serial.*;
+Serial mySerial;
+PrintWriter output;
+
+const int xout = A0;
+const int yout = A1;
+const int zout = A2;
+
+int recordData[20]; 
+char serInString[10]; 
+int value;
+void setup() {
+   mySerial = new Serial( this, Serial.list()[0], 9600 );
+   output = createWriter( "data.txt" ); // to create .txt file
+   Serial.println("ready");
+}
+
+void loop() {
+   readSerialString(serInString);  //Serial.println(analogRead(potPin));    
+   if(serInString[0] =='r'){
+     for(int counter = 0; counter < 20; counter++){
+       x = analogRead(A0);
+       x = map(out1, 0, 1023, 0, 255); 
+       recordData[counter] = x;
+       Serial.println(x);
+       y = analogRead(A1);
+       y = map(out1, 0, 1023, 0, 255); 
+       recordData[counter] = y;
+       Serial.println(y);
+       z = analogRead(A2);
+       z = map(out1, 0, 1023, 0, 255); 
+       recordData[counter] = z;
+       Serial.println(z);
+       delay(4); //sampling frequency of 250hz;    
+       }
+   Serial.println("RECORD DONE");
+   serInString[0] ='a';
+   } 
+   delay(1000);
+}
+
+//read a string from the serial and store it in an array
+void readSerialString (char *strArray) {
+  int i = 0;
+  if(!Serial.available()) {
+    return;
+  }
+  while (Serial.available()) {
+    strArray[i] = Serial.read();
+    i++;
+  }
+}
+
+void draw() {
+    if (mySerial.available() > 0 ) {
+         String value = mySerial.readString();
+         if ( value != null ) {
+              output.println( value );
+         }
+    }
+}
+
+void keyPressed() {
+    output.flush();  // Writes the remaining data to the file
+    output.close();  // Finishes the file
+    exit();  // Stops the program
+}
